@@ -1,6 +1,6 @@
-import { type Control, type Path } from "react-hook-form";
+import { type Control, type FieldError, type Path } from "react-hook-form";
 
-import { FormField as UiFormField } from "@/libs/ui/form";
+import { FormField as FormController } from "@/libs/ui/form";
 import FormField, {
   type FormFieldProps,
 } from "@/components/molecules/form/FormField";
@@ -31,31 +31,47 @@ const TokenAmountFormField = <TFormValues extends object>(
   } = props;
 
   return (
-    <UiFormField
+    <FormController
       control={control}
       name={name}
       render={({
         field: { onChange: onFormValueChange, ...restFormFields },
         fieldState,
-      }) => (
-        <FormField
-          required={required}
-          helperText={helperText}
-          error={fieldState.error?.message}
-          className={className}
-        >
-          <TokenAmountInput
-            label={label}
-            error={!!fieldState.error?.message}
-            onChange={(event) => {
-              onChange?.(event);
-              onFormValueChange(event);
-            }}
-            {...restProps}
-            {...restFormFields}
-          />
-        </FormField>
-      )}
+      }) => {
+        let errors: FieldError[] = [];
+
+        if (fieldState.error) {
+          if ("amount" in fieldState.error) {
+            errors.push(fieldState.error.amount as FieldError);
+          }
+
+          if ("currency" in fieldState.error) {
+            errors.push(fieldState.error.currency as FieldError);
+          }
+        }
+
+        console.log(name, restProps.value, restFormFields.value);
+
+        return (
+          <FormField
+            required={required}
+            helperText={helperText}
+            error={errors.map((error) => error.message).join(", ")}
+            className={className}
+          >
+            <TokenAmountInput
+              label={label}
+              error={!!errors.length}
+              onChange={(event) => {
+                onChange?.(event);
+                onFormValueChange(event);
+              }}
+              {...restProps}
+              {...restFormFields}
+            />
+          </FormField>
+        );
+      }}
     />
   );
 };

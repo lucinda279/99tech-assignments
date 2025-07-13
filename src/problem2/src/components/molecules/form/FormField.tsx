@@ -6,6 +6,7 @@ import {
   FormItem,
   FormLabel,
 } from "@/libs/ui/form";
+import { cn } from "@/utils/ui";
 
 export type FormFieldProps = {
   required?: boolean;
@@ -28,7 +29,7 @@ const FormField = (props: FormFieldProps) => {
         )}
       </FormLabel>
       <FormControl>{children}</FormControl>
-      <FormDescription className={error ? "text-danger" : ""}>
+      <FormDescription className={cn("text-xs", error && "text-destructive")}>
         {error || helperText}
       </FormDescription>
     </FormItem>

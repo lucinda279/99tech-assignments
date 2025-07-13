@@ -30,7 +30,10 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
       type={type}
       size={size}
       disabled={isLoading || disabled}
-      className={cn("flex rounded-full cursor-pointer", className)}
+      className={cn(
+        "flex rounded-full cursor-pointer disabled:bg-muted-foreground",
+        className
+      )}
       {...restProps}
     >
       {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}

@@ -6,7 +6,7 @@ import CurrencySelect, {
 } from "@/components/molecules/currency-select/CurrencySelect";
 import { cn } from "@/utils/ui";
 
-type TokenAmountInputValue = {
+export type TokenAmountInputValue = {
   amount?: number;
   currency?: string;
 };
@@ -18,6 +18,7 @@ export type TokenAmountInputProps = {
   balance?: number;
   currencies?: CurrencyOption[];
   error?: boolean;
+  readonly?: boolean;
   onChange?: (event: InputEvent<TokenAmountInputValue>) => void;
 };
 
@@ -29,17 +30,16 @@ const TokenAmountInput = (props: TokenAmountInputProps) => {
     balance,
     currencies,
     error,
+    readonly,
     onChange,
   } = props;
 
-  const handleChangeAmount = (event: ChangeEvent<HTMLInputElement>) => {
+  const handleChangeAmount = (event: InputEvent<number>) => {
     onChange?.({
       target: {
         name,
         value: {
-          amount: Number.isNaN(event.target.value)
-            ? undefined
-            : Number(event.target.value),
+          amount: event.target.value,
           currency: value?.currency,
         },
       },
@@ -64,9 +64,11 @@ const TokenAmountInput = (props: TokenAmountInputProps) => {
         {label && <Typography variant="caption">{label}</Typography>}
         <AmountInput
           className={cn(
-            "w-36 p-0 border-0 !ring-0 rounded-none shadow-none outline-none !text-lg font-semibold focus-visible:shadow-[0_1px_0_0_var(--primary)]",
-            error && "!shadow-[0_1px_0_0_var(--destructive)]"
+            "w-36 p-0 border-0 !ring-0 rounded-none shadow-none outline-none !text-lg font-semibold",
+            error && "!shadow-[0_1px_0_0_var(--destructive)]",
+            !readonly && "focus-visible:shadow-[0_1px_0_0_var(--primary)]"
           )}
+          readOnly={readonly}
           value={value?.amount}
           onChange={handleChangeAmount}
         />
