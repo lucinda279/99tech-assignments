@@ -1,9 +1,11 @@
 import { forwardRef, type ComponentType } from "react";
 import MaskInput, { type MaskInputProps } from "./MaskInput";
 
-export type AmountInputProps = MaskInputProps;
+export type AmountInputProps = Omit<MaskInputProps, "value"> & {
+  value?: number;
+};
 
-const AmountInput = forwardRef<ComponentType<MaskInputProps>, MaskInputProps>(
+const AmountInput = forwardRef<ComponentType<MaskInputProps>, AmountInputProps>(
   (props, ref) => {
     const { value, className, onChange } = props;
 
@@ -14,7 +16,7 @@ const AmountInput = forwardRef<ComponentType<MaskInputProps>, MaskInputProps>(
         thousandsSeparator=","
         mask={Number}
         scale={2}
-        value={value}
+        value={value?.toString()}
         className={className}
         onChange={onChange}
       />

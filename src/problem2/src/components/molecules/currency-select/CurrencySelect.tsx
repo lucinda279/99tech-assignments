@@ -2,16 +2,14 @@ import { forwardRef } from "react";
 import {
   Select,
   SelectContent,
-  SelectGroup,
   SelectItem,
-  SelectLabel,
   SelectTrigger,
   SelectValue,
 } from "@/libs/ui/select";
 import { type InputEvent } from "@/types/ui";
 import { cn } from "@/utils/ui";
 
-type CurrencyOption = {
+export type CurrencyOption = {
   value: string;
   label: string;
 };
