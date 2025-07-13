@@ -5,7 +5,7 @@ import {
 } from "@reduxjs/toolkit/query/react";
 
 const baseQuery = fetchBaseQuery({
-  baseUrl: import.meta.env.VITE_APP_CURRENCY_API_KEY,
+  baseUrl: import.meta.env.VITE_PRICE_API_URL,
 });
 
 export const apiSlice = createApi({

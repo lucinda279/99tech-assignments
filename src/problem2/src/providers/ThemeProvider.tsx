@@ -3,7 +3,7 @@ import { createContext, useContext, useEffect } from "react";
 
 import { persistTheme, selectApp } from "@/redux/app/appSlice";
 import { useAppDispatch, useAppSelector } from "@/redux/store";
-import type { Theme } from "@/types/theme";
+import type { Theme } from "@/types/ui";
 
 type ThemeContextData = {
   theme: Theme;
