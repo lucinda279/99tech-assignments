@@ -4,27 +4,38 @@ import { AmountInput, Typography } from "@/components/atoms";
 import CurrencySelect, {
   type CurrencyOption,
 } from "@/components/molecules/currency-select/CurrencySelect";
+import { cn } from "@/utils/ui";
 
 type TokenAmountInputValue = {
   amount?: number;
   currency?: string;
 };
 
-type TokenAmountInputProps = {
+export type TokenAmountInputProps = {
   label?: string;
+  name?: string;
   value?: TokenAmountInputValue;
   balance?: number;
   currencies?: CurrencyOption[];
+  error?: boolean;
   onChange?: (event: InputEvent<TokenAmountInputValue>) => void;
 };
 
 const TokenAmountInput = (props: TokenAmountInputProps) => {
-  const { label, value, balance, currencies, onChange } = props;
+  const {
+    label,
+    name = "",
+    value,
+    balance,
+    currencies,
+    error,
+    onChange,
+  } = props;
 
   const handleChangeAmount = (event: ChangeEvent<HTMLInputElement>) => {
     onChange?.({
       target: {
-        name: "amount",
+        name,
         value: {
           amount: Number.isNaN(event.target.value)
             ? undefined
@@ -38,7 +49,7 @@ const TokenAmountInput = (props: TokenAmountInputProps) => {
   const handleChangeCurrency = (event: InputEvent<string>) => {
     onChange?.({
       target: {
-        name: "currency",
+        name,
         value: {
           amount: value?.amount,
           currency: event.target.value,
@@ -52,7 +63,10 @@ const TokenAmountInput = (props: TokenAmountInputProps) => {
       <div className="flex flex-col gap-1">
         {label && <Typography variant="caption">{label}</Typography>}
         <AmountInput
-          className="p-0 border-0 !ring-0 rounded-none shadow-none outline-none !text-lg font-semibold focus-visible:shadow-[0_1px_0_0_var(--primary)]"
+          className={cn(
+            "w-36 p-0 border-0 !ring-0 rounded-none shadow-none outline-none !text-lg font-semibold focus-visible:shadow-[0_1px_0_0_var(--primary)]",
+            error && "!shadow-[0_1px_0_0_var(--destructive)]"
+          )}
           value={value?.amount}
           onChange={handleChangeAmount}
         />
@@ -62,6 +76,7 @@ const TokenAmountInput = (props: TokenAmountInputProps) => {
           Balance: {balance ? balance.toLocaleString() : 0}
         </Typography>
         <CurrencySelect
+          className="w-28"
           value={value?.currency}
           options={currencies || []}
           onChange={handleChangeCurrency}

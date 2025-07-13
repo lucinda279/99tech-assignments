@@ -8,6 +8,7 @@ import {
 } from "@/libs/ui/select";
 import { type InputEvent } from "@/types/ui";
 import { cn } from "@/utils/ui";
+import { Avatar, Typography } from "@/components/atoms";
 
 export type CurrencyOption = {
   value: string;
@@ -32,20 +33,23 @@ const CurrencySelect = forwardRef<HTMLButtonElement, CurrencySelectProps>(
 
     return (
       <Select value={value} onValueChange={handleChange}>
-        <SelectTrigger ref={ref} className={cn("rounded-full p-1", className)}>
+        <SelectTrigger
+          ref={ref}
+          className={cn("rounded-full bg-background p-1", className)}
+        >
           <SelectValue />
         </SelectTrigger>
-        <SelectContent>
+        <SelectContent className="max-h-64">
           {options.map((option) => (
             <SelectItem key={option.value} value={option.value}>
-              <img
+              <Avatar
                 className="w-6 h-6 shrink-0"
-                src={`${import.meta.env.VITE_TOKEN_ICONS_URL}/${
+                alt={option.label}
+                imgUrl={`${import.meta.env.VITE_TOKEN_ICONS_URL}/${
                   option.value
                 }.svg`}
-                alt={option.label}
               />
-              {option.label}
+              <Typography>{option.label}</Typography>
             </SelectItem>
           ))}
         </SelectContent>
