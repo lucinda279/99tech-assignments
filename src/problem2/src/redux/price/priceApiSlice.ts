@@ -1,5 +1,5 @@
 import { apiSlice } from "@/redux/apiSlices";
-import type { Price } from "@/types/price";
+import type { Price } from "@/types/currency.types";
 
 const getPricesEndpointDef = {
   query: () => ({

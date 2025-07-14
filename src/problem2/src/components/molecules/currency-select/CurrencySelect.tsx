@@ -1,4 +1,5 @@
 import { forwardRef } from "react";
+
 import {
   Select,
   SelectContent,
@@ -6,13 +7,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/libs/ui/select";
-import { type InputEvent } from "@/types/ui";
-import { cn } from "@/utils/ui";
+import { type InputEvent } from "@/types/ui.types";
+import { cn } from "@/utils/ui.utils";
 import { Avatar, Typography } from "@/components/atoms";
 
 export type CurrencyOption = {
-  value: string;
+  code: string;
   label: string;
+  value: number;
 };
 
 type CurrencySelectProps = {
@@ -41,12 +43,12 @@ const CurrencySelect = forwardRef<HTMLButtonElement, CurrencySelectProps>(
         </SelectTrigger>
         <SelectContent className="max-h-64">
           {options.map((option) => (
-            <SelectItem key={option.value} value={option.value}>
+            <SelectItem key={option.code} value={option.code}>
               <Avatar
                 className="w-6 h-6 shrink-0"
                 alt={option.label}
                 imgUrl={`${import.meta.env.VITE_TOKEN_ICONS_URL}/${
-                  option.value
+                  option.code
                 }.svg`}
               />
               <Typography>{option.label}</Typography>

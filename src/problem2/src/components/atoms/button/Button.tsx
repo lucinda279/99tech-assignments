@@ -1,12 +1,11 @@
 import { forwardRef } from "react";
-
 import { Loader2 } from "lucide-react";
 
 import {
   Button as UiButton,
   type ButtonProps as UiButtonProps,
 } from "@/libs/ui/button";
-import { cn } from "@/utils/ui";
+import { cn } from "@/utils/ui.utils";
 import { Typography } from "..";
 
 export type ButtonProps = Omit<UiButtonProps, "prefix"> & {
@@ -38,7 +37,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>((props, ref) => {
     >
       {isLoading && <Loader2 className="w-4 h-4 animate-spin" />}
       {typeof children === "string" ? (
-        <Typography>{children}</Typography>
+        <Typography className="font-semibold">{children}</Typography>
       ) : (
         children
       )}

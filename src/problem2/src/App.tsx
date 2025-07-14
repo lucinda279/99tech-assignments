@@ -3,7 +3,7 @@ import { PersistGate } from "redux-persist/integration/react";
 
 import ThemeProvider from "@/providers/ThemeProvider";
 import { store, persistor } from "@/redux/config";
-import { SwapForm } from "@/components/templates";
+import { AppLayout, SwapForm } from "@/components/templates";
 import { Toaster } from "@/libs/ui/sonner";
 
 function App() {
@@ -11,9 +11,9 @@ function App() {
     <Provider store={store}>
       <PersistGate persistor={persistor}>
         <ThemeProvider>
-          <div className="flex flex-col items-center justify-center h-screen bg-gray-100">
+          <AppLayout>
             <SwapForm />
-          </div>
+          </AppLayout>
           <Toaster richColors position="top-center" />
         </ThemeProvider>
       </PersistGate>

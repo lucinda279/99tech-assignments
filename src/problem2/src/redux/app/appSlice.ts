@@ -1,7 +1,7 @@
 import type { PayloadAction } from "@reduxjs/toolkit";
 import { createSlice } from "@reduxjs/toolkit";
 
-import type { Theme } from "@/types/ui";
+import type { Theme } from "@/types/ui.types";
 import type { RootState } from "@/redux/store";
 
 const initialState: {

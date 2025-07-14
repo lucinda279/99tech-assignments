@@ -1,36 +1,33 @@
-import { forwardRef, type ComponentType } from "react";
-import MaskInput, { type MaskInputProps } from "./MaskInput";
-import type { InputEvent } from "@/types/ui";
+import { forwardRef } from "react";
 
-export type AmountInputProps = Omit<MaskInputProps, "value" | "onChange"> & {
+import type { InputEvent } from "@/types/ui.types";
+import { Input, type InputProps } from "@/libs/ui/input";
+
+export type AmountInputProps = Omit<InputProps, "value" | "onChange"> & {
   value?: number;
-  onChange?: (event: InputEvent<number>) => void;
+  onChange?: (event: InputEvent<number | undefined>) => void;
 };
 
-const AmountInput = forwardRef<ComponentType<MaskInputProps>, AmountInputProps>(
+const AmountInput = forwardRef<HTMLInputElement, AmountInputProps>(
   (props, ref) => {
-    const { value, name, className, readOnly, onChange } = props;
+    const { name, onChange, ...restProps } = props;
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+      onChange?.({
+        target: {
+          name: name || "",
+          value: e.target.value ? Number(e.target.value) : undefined,
+        },
+      });
+    };
 
     return (
-      <MaskInput
+      <Input
         ref={ref}
-        unmask="typed"
-        radix="."
-        mapToRadix={[".", ","]}
-        thousandsSeparator=","
-        scale={2}
-        mask={Number}
-        readOnly={readOnly}
-        className={className}
-        value={value?.toString()}
-        onAccept={(value) => {
-          onChange?.({
-            target: {
-              name: name || "",
-              value: Number(value),
-            },
-          });
-        }}
+        type="number"
+        name={name}
+        onChange={handleChange}
+        {...restProps}
       />
     );
   }

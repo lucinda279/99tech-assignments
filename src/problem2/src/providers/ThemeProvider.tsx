@@ -3,7 +3,7 @@ import { createContext, useContext, useEffect } from "react";
 
 import { persistTheme, selectApp } from "@/redux/app/appSlice";
 import { useAppDispatch, useAppSelector } from "@/redux/store";
-import type { Theme } from "@/types/ui";
+import type { Theme } from "@/types/ui.types";
 
 type ThemeContextData = {
   theme: Theme;
@@ -43,4 +43,4 @@ export default function ThemeProvider(props: ThemeProviderProps) {
   );
 }
 
-export const useThemeContext = () => useContext(ThemeContext);
+export const useTheme = () => useContext(ThemeContext);

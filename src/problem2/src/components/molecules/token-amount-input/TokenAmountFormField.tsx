@@ -50,14 +50,12 @@ const TokenAmountFormField = <TFormValues extends object>(
           }
         }
 
-        console.log(name, restProps.value, restFormFields.value);
-
         return (
           <FormField
+            className={className}
             required={required}
             helperText={helperText}
             error={errors.map((error) => error.message).join(", ")}
-            className={className}
           >
             <TokenAmountInput
               label={label}

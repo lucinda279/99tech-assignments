@@ -6,7 +6,7 @@ import {
   FormItem,
   FormLabel,
 } from "@/libs/ui/form";
-import { cn } from "@/utils/ui";
+import { cn } from "@/utils/ui.utils";
 
 export type FormFieldProps = {
   required?: boolean;

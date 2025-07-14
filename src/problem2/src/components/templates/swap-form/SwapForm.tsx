@@ -1,34 +1,31 @@
-import * as z from "zod";
 import { useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ArrowUpDown } from "lucide-react";
 import { toast } from "sonner";
+import { useDebounceCallback } from "usehooks-ts";
 
 import { Button, Typography } from "@/components/atoms";
 import { Form, TokenAmountFormField } from "@/components/molecules";
 import { useGetPricesQuery } from "@/redux/price/priceApiSlice";
-import { sortByField } from "@/utils/array";
-import type { Price } from "@/types/price";
-import type { InputEvent } from "@/types/ui";
+import { sortByField } from "@/utils/array.utils";
+import {
+  currencySwapSchema,
+  type CurrencySwapValues,
+  type Price,
+} from "@/types/currency.types";
+import type { InputEvent } from "@/types/ui.types";
 import type { CurrencyOption } from "@/components/molecules/currency-select/CurrencySelect";
 import type { TokenAmountInputValue } from "@/components/molecules/token-amount-input/TokenAmountInput";
-
-const formSchema = z.object({
-  from: z.object({
-    amount: z.number().min(0, "Amount must be greater than 0"),
-    currency: z.string().min(1, { message: "Currency is required" }),
-  }),
-  to: z.object({
-    amount: z.number().min(0, "Amount must be greater than 0"),
-    currency: z.string().min(1, { message: "Currency is required" }),
-  }),
-});
-
-export type SwapFormValues = z.infer<typeof formSchema>;
+import {
+  FAKE_LOADING_TIME,
+  INPUT_DEBOUNCE_TIME,
+} from "@/constants/ui.constants";
 
 const SwapForm = () => {
   const [submitting, setSubmitting] = useState(false);
+  const [calculatePayAmount, setCalculatePayAmount] = useState(false);
+  const [calculateReceiveAmount, setCalculateReceiveAmount] = useState(false);
 
   const { data: prices } = useGetPricesQuery();
 
@@ -47,21 +44,22 @@ const SwapForm = () => {
   const currencyOptions = useMemo(() => {
     if (!pricesMapping) return [];
 
-    return Object.values(pricesMapping).map((price) => ({
-      label: price.currency,
-      value: price.currency,
+    return Object.values(pricesMapping).map((x) => ({
+      code: x.currency,
+      label: x.currency,
+      value: x.price,
     })) as CurrencyOption[];
   }, [pricesMapping]);
 
-  const form = useForm<SwapFormValues>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<CurrencySwapValues>({
+    resolver: zodResolver(currencySwapSchema),
     mode: "onChange",
     defaultValues: {
-      from: {
+      pay: {
         amount: 1,
         currency: "USD",
       },
-      to: {
+      receive: {
         amount: 1,
         currency: "USD",
       },
@@ -70,17 +68,17 @@ const SwapForm = () => {
 
   const {
     control,
-    formState: { isValid, isDirty },
+    formState: { isValid },
     watch,
     setValue,
     handleSubmit,
   } = form;
 
-  const watchedFrom = watch("from");
-  const watchedTo = watch("to");
+  const watchedPay = watch("pay");
+  const watchedReceive = watch("receive");
 
   const handleSwitch = () => {
-    const { from, to } = form.getValues();
+    const { pay: from, receive: to } = form.getValues();
 
     const nextFromValue = {
       amount: from.amount,
@@ -92,65 +90,81 @@ const SwapForm = () => {
       currency: from.currency,
     };
 
-    setValue("from", nextFromValue);
-    setValue("to", nextToValue);
+    setValue("pay", nextFromValue);
+    setValue("receive", nextToValue);
   };
 
-  const handleCalculateSwapAmount = (
-    from: SwapFormValues["from"],
-    to: SwapFormValues["to"]
+  const handleCalculateSwapAmount = async (
+    pay: CurrencySwapValues["pay"],
+    receive: CurrencySwapValues["receive"]
   ) => {
-    const fromPrice = pricesMapping[from.currency]?.price;
-    const toPrice = pricesMapping[to.currency]?.price;
+    await new Promise((resolve) => setTimeout(resolve, FAKE_LOADING_TIME));
 
-    if (!fromPrice || !toPrice) return undefined;
+    const payPrice = pricesMapping[pay.currency]?.price;
+    const receivePrice = pricesMapping[receive.currency]?.price;
 
-    const fromAmount = from.amount;
-    const toAmount = (fromAmount * fromPrice) / toPrice;
+    if (!payPrice || !receivePrice) return undefined;
+
+    const payAmount = pay.amount;
+    const receiveAmount = (payAmount * payPrice) / receivePrice;
 
     return {
-      amount: Number(toAmount.toFixed(2)),
-      currency: to.currency,
+      amount: Number(receiveAmount.toFixed(2)),
+      currency: receive.currency,
     };
   };
 
-  const handleChangeFromAmount = (event: InputEvent<TokenAmountInputValue>) => {
-    const { amount, currency } = event.target.value;
+  const handleChangePayAmount = useDebounceCallback(
+    async (event: InputEvent<TokenAmountInputValue>) => {
+      const { amount, currency } = event.target.value;
 
-    if (!amount || !currency) return;
+      if (!amount || !currency) return;
 
-    const nextToValue = handleCalculateSwapAmount(
-      { amount, currency },
-      watchedTo
-    );
+      setCalculateReceiveAmount(true);
 
-    if (!nextToValue) return;
+      const nextToValue = await handleCalculateSwapAmount(
+        { amount, currency },
+        watchedReceive
+      );
 
-    setValue("to", nextToValue);
-  };
+      if (nextToValue) {
+        setValue("receive", nextToValue);
+      }
 
-  const handleChangeToCurrency = (event: InputEvent<TokenAmountInputValue>) => {
-    const { amount, currency } = event.target.value;
+      setCalculateReceiveAmount(false);
+    },
+    INPUT_DEBOUNCE_TIME
+  );
 
-    if (!amount || !currency) return;
+  const handleChangeReceiveAmount = useDebounceCallback(
+    async (event: InputEvent<TokenAmountInputValue>) => {
+      const { amount, currency } = event.target.value;
 
-    const nextFromValue = handleCalculateSwapAmount(
-      {
-        amount,
-        currency,
-      },
-      watchedFrom
-    );
+      if (!amount || !currency) return;
 
-    if (!nextFromValue) return;
+      setCalculatePayAmount(true);
 
-    setValue("from", nextFromValue);
-  };
+      const nextFromValue = await handleCalculateSwapAmount(
+        {
+          amount,
+          currency,
+        },
+        watchedPay
+      );
 
-  const handleSwap = async (values: SwapFormValues) => {
+      if (nextFromValue) {
+        setValue("pay", nextFromValue);
+      }
+
+      setCalculatePayAmount(false);
+    },
+    INPUT_DEBOUNCE_TIME
+  );
+
+  const handleSwap = async (values: CurrencySwapValues) => {
     setSubmitting(true);
 
-    await new Promise((resolve) => setTimeout(resolve, 1000));
+    await new Promise((resolve) => setTimeout(resolve, FAKE_LOADING_TIME));
 
     toast.success("Swap successful", {
       description: "You have successfully swapped your tokens",
@@ -160,64 +174,63 @@ const SwapForm = () => {
   };
 
   return (
-    <div className="flex flex-col gap-4 w-fit p-6 bg-background rounded-lg shadow-xl">
-      <div>
-        <Typography variant="subhead">Swap</Typography>
-      </div>
+    <Form
+      className="flex flex-col items-center gap-4"
+      onSubmit={handleSubmit(handleSwap)}
+      {...form}
+    >
+      <div className="flex flex-col items-center">
+        <TokenAmountFormField
+          className="w-full bg-gray-100 dark:bg-neutral-800 rounded-lg p-3"
+          name="pay"
+          label="You pay"
+          control={control}
+          balance={100000}
+          currencies={currencyOptions}
+          loading={calculatePayAmount}
+          onChange={handleChangePayAmount}
+        />
 
-      <Form
-        className="flex flex-col items-center gap-4"
-        onSubmit={handleSubmit(handleSwap)}
-        {...form}
-      >
-        <div className="flex flex-col items-center">
-          <TokenAmountFormField
-            className="bg-gray-100 rounded-lg p-3"
-            name="from"
-            label="You pay"
-            control={control}
-            balance={100000}
-            currencies={currencyOptions}
-            onChange={handleChangeFromAmount}
-          />
-
-          <div className="w-fit h-fit bg-gray-100 rounded-full p-1 -m-3 z-10">
-            <Button
-              className="w-fit h-fit !p-2 !rounded-full border-none text-gray-500 hover:text-gray-900 hover:bg-background"
-              variant="outline"
-              onClick={handleSwitch}
-            >
-              <ArrowUpDown className="!w-4 !h-4 shrink-0" />
-            </Button>
-          </div>
-
-          <TokenAmountFormField
-            className="bg-gray-100 rounded-lg p-3"
-            name="to"
-            label="You receive"
-            balance={50000}
-            control={control}
-            currencies={currencyOptions}
-            onChange={handleChangeToCurrency}
-          />
+        <div className="w-fit h-fit bg-gray-100 dark:bg-neutral-800 rounded-full p-1 -m-3 z-10">
+          <Button
+            className="w-fit h-fit !p-2 !rounded-full border-none text-gray-500 dark:text-gray-200 hover:text-gray-900 dark:hover:text-gray-50 hover:bg-background"
+            variant="outline"
+            onClick={handleSwitch}
+          >
+            <ArrowUpDown className="!w-4 !h-4 shrink-0" />
+          </Button>
         </div>
 
-        <Typography className="text-gray-500">
-          {`${watchedFrom.amount.toLocaleString()} ${
-            watchedFrom.currency
-          } = ${watchedTo.amount?.toLocaleString()} ${watchedTo.currency}`}
-        </Typography>
+        <TokenAmountFormField
+          className="w-full bg-gray-100 dark:bg-neutral-800 rounded-lg p-3"
+          name="receive"
+          label="You receive"
+          control={control}
+          currencies={currencyOptions}
+          loading={calculateReceiveAmount}
+          onChange={handleChangeReceiveAmount}
+        />
+      </div>
 
-        <Button
-          className="w-full"
-          type="submit"
-          disabled={!isValid || !isDirty}
-          isLoading={submitting}
-        >
-          Swap
-        </Button>
-      </Form>
-    </div>
+      {isValid && (
+        <Typography className="text-gray-500 dark:text-gray-200">
+          {`${watchedPay.amount.toLocaleString()} ${
+            watchedPay.currency
+          } = ${watchedReceive.amount?.toLocaleString()} ${
+            watchedReceive.currency
+          }`}
+        </Typography>
+      )}
+
+      <Button
+        className="w-full"
+        type="submit"
+        disabled={!isValid}
+        isLoading={submitting}
+      >
+        Swap
+      </Button>
+    </Form>
   );
 };
 
