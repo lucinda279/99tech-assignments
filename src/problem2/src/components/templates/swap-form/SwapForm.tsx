@@ -161,7 +161,7 @@ const SwapForm = () => {
     INPUT_DEBOUNCE_TIME
   );
 
-  const handleSwap = async (values: CurrencySwapValues) => {
+  const handleSwap = async (_: CurrencySwapValues) => {
     setSubmitting(true);
 
     await new Promise((resolve) => setTimeout(resolve, FAKE_LOADING_TIME));
