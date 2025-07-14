@@ -1,69 +1,30 @@
-# React + TypeScript + Vite
+# Currency Swap Form Solution
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+This project is my solution to the currency swap form assignment. It allows users to swap assets from one currency to another, with real-time price data and token images.
 
-Currently, two official plugins are available:
+## Solution Overview
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+- **Modern UI:** Built with React, TypeScript, Vite, ShadcnUI and Tailwind CSS for a responsive and visually appealing interface.
+- **Live Price Data:** Fetches token prices from [Switcheo’s API](https://interview.switcheo.com/prices.json) to compute exchange rates.
+- **Token Images:** Displays token icons using the [Switcheo token-icons repo](https://github.com/Switcheo/token-icons/tree/main/tokens).
+- **Form Validation:** Uses React Hook Form and Zod for interactive validation and user feedback.
+- **Theme Support:** Supports both light and dark modes.
+- **State Management:** Utilizes Redux Toolkit for predictable state handling.
 
-## Expanding the ESLint configuration
+## Assumptions
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+- Only tokens with available price data from the provided API are shown as options.
+- Exchange rates are calculated using the latest fetched prices.
+- If a token image is missing, a placeholder is shown.
+- The swap is simulated (no real transaction is performed).
+- The balance shown in the form is a fake number for demonstration purposes.
+- The UI/UX is prioritized for intuitiveness and clarity, as per assignment requirements.
 
-```js
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+## How to Run
 
-      // Remove tseslint.configs.recommended and replace with this
-      ...tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      ...tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      ...tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+npm install
+npm run dev
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
-
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default tseslint.config([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
-```
+Then open [http://localhost:5173](http://localhost:5173) in your browser.
